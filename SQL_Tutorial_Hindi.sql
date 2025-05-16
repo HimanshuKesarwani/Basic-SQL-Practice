@@ -672,7 +672,7 @@ VALUES
 
 SELECT * FROM travel;
 
---QMinimize this table with single values
+--Q1: Minimize this table with single values
 
 --Method 1: Using greatest and least values
 SELECT least(source,destination) FROM travel;
@@ -705,3 +705,37 @@ WHERE NOT EXISTS (
 					AND t1.destination > t2.destination
 				 )
 				 
+--Q2: Create match table:
+CREATE TABLE match ( team varchar(20) ) 
+INSERT INTO match (team) VALUES ('India'), ('Pak'), ('Aus'), ('Eng')
+
+SELECT * FROM match;
+
+WITH CTE AS (
+	SELECT * ,ROW_NUMBER() OVER(ORDER BY team) AS id 
+	FROM match
+			) 
+
+SELECT a.team AS "Team-A", b.team AS "Team-B" FROM cte AS a 
+JOIN cte AS b 
+ON a.team <> b.team 
+WHERE a.id < b.id
+
+--Q3: Create emp table:
+CREATE TABLE emp ( ID int, NAME varchar(10) ) 
+INSERT INTO emp (ID, NAME) 
+VALUES (1,'Emp1'), (2,'Emp2'), (3,'Emp3'), (4,'Emp4'), 
+(5,'Emp5'), (6,'Emp6'), (7,'Emp7'), (8,'Emp8')
+
+SELECT * FROM emp;
+
+WITH CTE AS (
+SELECT *, CONCAT(id,' ', name) AS con, 
+NTILE(4) OVER(ORDER BY id) AS groups 
+FROM emp
+)
+SELECT STRING_AGG(con, ', ') AS result, groups 
+FROM cte 
+GROUP BY groups
+ORDER BY groups;
+
