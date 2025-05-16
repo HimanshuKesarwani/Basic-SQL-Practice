@@ -651,3 +651,57 @@ SELECT * FROM EmpCTE;
 	2. Finding Ancestors
 */
 	
+--Interview Questions
+
+-- Create the travel table
+CREATE TABLE travel (
+    source VARCHAR(20),
+    destination VARCHAR(20),
+    distance INTEGER
+);
+
+-- Insert the travel data
+INSERT INTO travel (source, destination, distance)
+VALUES 
+    ('Mumbai', 'Bangalore', 500),
+    ('Bangalore', 'Mumbai', 500),
+    ('Delhi', 'Mathura', 150),
+    ('Mathura', 'Delhi', 150),
+    ('Nagpur', 'Pune', 500),
+    ('Pune', 'Nagpur', 500);
+
+SELECT * FROM travel;
+
+--QMinimize this table with single values
+
+--Method 1: Using greatest and least values
+SELECT least(source,destination) FROM travel;
+
+SELECT greatest(source,destination), least(source,destination), max(distance) 
+FROM travel 
+GROUP BY greatest(source,destination), least(source,destination);
+
+
+--Method 2: Using Self Join
+With cte AS 
+(
+SELECT *, row_number() OVER() as Sno 
+FROM travel
+) 
+SELECT t1.* 
+FROM cte AS t1 
+JOIN cte AS t2 
+ON t1.source = t2.destination 
+AND t1.Sno < t2.Sno
+
+--Method 3: Using Subquery 
+
+SELECT * 
+FROM travel t1 
+WHERE NOT EXISTS (
+					SELECT * FROM travel t2 
+					WHERE t1.source = t2.destination 
+					AND t1.destination = t2.source 
+					AND t1.destination > t2.destination
+				 )
+				 
