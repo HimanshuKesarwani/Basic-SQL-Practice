@@ -57,13 +57,13 @@ SELECT * FROM customer;
 
 ALTER TABLE customer RENAME COLUMN city TO city_name;
 
-ALTER TABLE customer ALTER COLUMN city TYPE VARCHAR(100);
+ALTER TABLE customer ALTER COLUMN city_name TYPE VARCHAR(100);
 
-ALTER TABLE customer ALTER COLUMN city SET DEFAULT 'Unknown';
+ALTER TABLE customer ALTER COLUMN city_name SET DEFAULT 'Unknown';
 	
-ALTER TABLE customer ALTER COLUMN city DROP DEFAULT;
+ALTER TABLE customer ALTER COLUMN city_name DROP DEFAULT;
 
-ALTER TABLE customer ALTER COLUMN city SET NOT NULL;
+ALTER TABLE customer ALTER COLUMN city_name SET NOT NULL;
 
 SELECT * FROM customer;
 
@@ -103,6 +103,10 @@ VALUES
 
 SELECT * FROM classroom;
 
+SELECT DISTINCT grade FROM classroom;
+--gives unique fields
+
+
 --WHERE CLAUSE
 
 SELECT name FROM classroom WHERE grade='A';
@@ -118,7 +122,7 @@ SELECT * FROM classroom LIMIT 3;
 SELECT * FROM classroom ORDER BY name ASC;
 
 --Importing data from csv file
-
+DROP TABLE if EXISTS customer;
 CREATE TABLE customer
 (
 customer_id int8 PRIMARY KEY,
@@ -129,7 +133,7 @@ address_id int8
 )
 
 COPY customer(customer_id,first_name,last_name,email,address_id)
-FROM 'E:\customer.csv'
+FROM 'D:\DataAnalyst\SQL\customer.csv'
 DELIMITER ','
 CSV HEADER;
 
@@ -142,6 +146,7 @@ CREATE TABLE payment
 	mode varchar(50),
 	payment_date date
 )
+--Import/Export data in payment.csv by right clicking on table 
 
 SELECT * FROM payment;
 
@@ -183,7 +188,6 @@ GROUP BY mode
 ORDER BY total ASC
 
 --WHERE CLAUSE is for SELECT and HAVING CLAUSE is for GROUP BY
-
 
 SELECT mode, COUNT(amount) AS total
 FROM payment
@@ -433,6 +437,16 @@ SELECT new_id, new_cat,
   MAX(new_id) OVER( PARTITION BY new_cat ORDER BY new_id ) AS "Max"
 FROM test_data;
 
+--Correct version of above query
+SELECT new_id, new_cat,
+  SUM(new_id) OVER (PARTITION BY new_cat) AS "Total",
+  AVG(new_id) OVER (PARTITION BY new_cat) AS "Average",
+  COUNT(new_id) OVER (PARTITION BY new_cat) AS "Count",
+  MIN(new_id) OVER (PARTITION BY new_cat) AS "Min",
+  MAX(new_id) OVER (PARTITION BY new_cat) AS "Max"
+FROM test_data
+ORDER BY new_cat, new_id;
+
 /* Output of above query
 +--------+---------+-------+----------+-------+-----+-----+
 | new_id | new_cat | Total | Average  | Count | Min | Max |
@@ -681,6 +695,7 @@ SELECT greatest(source,destination), least(source,destination), max(distance)
 FROM travel 
 GROUP BY greatest(source,destination), least(source,destination);
 
+--least() function will show the least value as input and if inputs are string then alphabetically first value
 
 --Method 2: Using Self Join
 With cte AS 
@@ -736,6 +751,6 @@ FROM emp
 )
 SELECT STRING_AGG(con, ', ') AS result, groups 
 FROM cte 
-GROUP BY groups
+GROUP BY groups 
 ORDER BY groups;
 
